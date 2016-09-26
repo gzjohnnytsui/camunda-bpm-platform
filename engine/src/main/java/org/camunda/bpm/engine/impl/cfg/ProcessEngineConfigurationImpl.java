@@ -125,6 +125,7 @@ import org.camunda.bpm.engine.impl.el.CommandContextFunctionMapper;
 import org.camunda.bpm.engine.impl.el.DateTimeFunctionMapper;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
 import org.camunda.bpm.engine.impl.event.CompensationEventHandler;
+import org.camunda.bpm.engine.impl.event.ConditionalEventHandler;
 import org.camunda.bpm.engine.impl.event.EventHandler;
 import org.camunda.bpm.engine.impl.event.EventHandlerImpl;
 import org.camunda.bpm.engine.impl.event.EventType;
@@ -1801,7 +1802,7 @@ public abstract class ProcessEngineConfigurationImpl extends ProcessEngineConfig
       EventHandler messageEventHandler = new EventHandlerImpl(EventType.MESSAGE);
       eventHandlers.put(messageEventHandler.getEventHandlerType(), messageEventHandler);
 
-      EventHandler conditionalEventHandler = new EventHandlerImpl(EventType.CONDITONAL);
+      EventHandler conditionalEventHandler = new ConditionalEventHandler();
       eventHandlers.put(conditionalEventHandler.getEventHandlerType(), conditionalEventHandler);
 
     }

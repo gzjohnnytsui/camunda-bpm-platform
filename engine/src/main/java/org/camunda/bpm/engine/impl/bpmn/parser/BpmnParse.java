@@ -36,6 +36,7 @@ import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.impl.Condition;
 import org.camunda.bpm.engine.impl.ProcessEngineLogger;
+import org.camunda.bpm.engine.impl.bpmn.behavior.BoundaryConditionalEventActivityBehavior;
 import org.camunda.bpm.engine.impl.bpmn.behavior.BoundaryEventActivityBehavior;
 import org.camunda.bpm.engine.impl.bpmn.behavior.CallActivityBehavior;
 import org.camunda.bpm.engine.impl.bpmn.behavior.CallableElementActivityBehavior;
@@ -3040,7 +3041,7 @@ public class BpmnParse extends Parse {
         }
 
       } else if (conditionalEventDefinition != null) {
-        parseBoundaryConditionalEventDefinition(conditionalEventDefinition, isCancelActivity, boundaryEventActivity);
+        behavior = parseBoundaryConditionalEventDefinition(conditionalEventDefinition, isCancelActivity, boundaryEventActivity);
       } else {
         addError("Unsupported boundary event type", boundaryEventElement);
 
@@ -3414,8 +3415,9 @@ public class BpmnParse extends Parse {
    * @param element the XML element which contains the conditional event information
    * @param interrupting indicates if the event is interrupting or not
    * @param conditionalActivity the conditional event activity
+   * @return the boundary conditional event behavior which contains the condition
    */
-  public void parseBoundaryConditionalEventDefinition(Element element, boolean interrupting, ActivityImpl conditionalActivity) {
+  public BoundaryConditionalEventActivityBehavior parseBoundaryConditionalEventDefinition(Element element, boolean interrupting, ActivityImpl conditionalActivity) {
     conditionalActivity.getProperties().set(BpmnProperties.TYPE, ActivityTypes.BOUNDARY_CONDITIONAL);
 
     ConditionalEventDefinition conditionalEventDefinition = parseConditionalEventDefinition(element, conditionalActivity);
@@ -3425,6 +3427,8 @@ public class BpmnParse extends Parse {
     for (BpmnParseListener parseListener : parseListeners) {
       parseListener.parseBoundaryConditionalEventDefinition(element, interrupting, conditionalActivity);
     }
+
+    return new BoundaryConditionalEventActivityBehavior(conditionalEventDefinition);
   }
 
   /**
@@ -3438,7 +3442,6 @@ public class BpmnParse extends Parse {
     conditionalActivity.getProperties().set(BpmnProperties.TYPE, ActivityTypes.INTERMEDIATE_EVENT_CONDITIONAL);
 
     ConditionalEventDefinition conditionalEventDefinition = parseConditionalEventDefinition(element, conditionalActivity);
-    addEventSubscriptionDeclaration(conditionalEventDefinition, conditionalActivity.getEventScope(), element);
 
     for (BpmnParseListener parseListener : parseListeners) {
       parseListener.parseIntermediateConditionalEventDefinition(element, conditionalActivity);
